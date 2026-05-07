@@ -2,160 +2,182 @@
 
 This repository documents my hands-on exploration of **LLM systems, tool calling, and agent design using LangChain**.
 
-Instead of relying on pre-built abstractions, I focused on understanding **how things work under the hood** — building components manually and then layering structured applications on top.
+Instead of relying on high-level abstractions, this repo focuses on **understanding how things work under the hood** — building components manually and then layering applications on top.
 
 ---
 
 ## 🧠 What this repo covers
 
-This is not a single project — it's a **progressive learning + building repo** covering:
-
-- 🔧 Manual LLM tool-calling orchestration (agent internals)
-- 🌐 Integration with external tools (Wikipedia, Tavily Search)
-- 💬 Stateful conversational apps using Streamlit
-- ⚙️ Azure OpenAI integration via LangChain
-- 🧩 Prompt pipelines using LCEL (`prompt | model | parser`)
-- 🧪 Debuggable message-driven workflows
+* 🔧 Manual LLM tool-calling orchestration (agent internals)
+* 🌐 Integration with external tools (Wikipedia, Tavily Search)
+* 💬 Stateful conversational apps using Streamlit
+* ⚙️ Azure OpenAI integration via LangChain
+* 🧩 Prompt pipelines using LCEL (`prompt | model | parser`)
+* 🧪 Debuggable message-driven workflows
 
 ---
 
 ## 📁 Project Structure
+
+```
 Gen-AI/
 │
 ├── Langchain/
-│ ├── QA-ChatBot.py # Streamlit-based chatbot
-│ ├── manual_tool_calling_agent.ipynb # Custom agent loop (core learning)
+│   ├── QA-ChatBot.py
+│   └── manual_tool_calling_agent.ipynb
 │
-├── main.py # Entry / experimentation
-├── pyproject.toml # Dependency management (uv)
-├── requirements.txt # Backup dependency list
+├── main.py
+├── pyproject.toml
+├── requirements.txt
 ├── .gitignore
 └── README.md
+```
 
 ---
 
-## 🤖 1. Streamlit QA Chatbot
+## 🤖 Streamlit QA Chatbot
 
-A simple but clean conversational chatbot built using:
+A simple conversational chatbot built using:
 
-- **Streamlit UI**
-- **Azure OpenAI (GPT-4o / GPT-4.1-mini)**
-- **LangChain LCEL pipeline**
+* Streamlit UI
+* Azure OpenAI (GPT-4o / GPT-4.1-mini)
+* LangChain LCEL pipeline
 
 ### ✨ Features
 
-- Model selection from UI
-- Streaming responses (token-by-token)
-- Persistent conversation using `session_state`
-- Clean separation of prompt → model → parser
-- Environment-based configuration via `.env`
+* Model selection from UI
+* Streaming responses (token-by-token)
+* Persistent conversation using `session_state`
+* Prompt → Model → Parser pipeline
+* Environment-based configuration via `.env`
 
-### ⚙️ Core Flow
-User Input → Prompt Template → AzureChatOpenAI → Output Parser → UI Stream
+### ⚙️ Flow
 
----
-
-## 🧠 2. Manual Tool-Calling Agent (Core Highlight)
-
-📌 File: `manual_tool_calling_agent.ipynb`
-
-This is the **most important part of the repo**.
-
-Instead of using LangChain agents, I implemented the full loop manually:
-
-- LLM decides actions (`tool_calls`)
-- Python executes tools
-- Results returned via `ToolMessage`
-- Loop continues until final answer
+```
+User Input → Prompt Template → AzureChatOpenAI → Output Parser → UI
+```
 
 ---
 
-### 🔁 Execution Flow
-User → LLM → Tool Calls → Tool Execution → LLM → ... → Final Answer
+## 🧠 Manual Tool-Calling Agent (Core Highlight)
 
----
+File: `manual_tool_calling_agent.ipynb`
+
+This is the core learning component where the full agent loop is implemented manually:
+
+1. User query sent to LLM
+2. LLM returns `tool_calls`
+3. Tools executed manually in Python
+4. Results returned via `ToolMessage`
+5. Loop continues until final answer
+
+### 🔁 Flow
+
+```
+User → LLM → Tool Calls → Tool Execution → LLM → Final Answer
+```
 
 ### 🔧 Capabilities
 
-- Custom tools (`add`, `multiply`)
-- External tools:
-  - Wikipedia
-  - Tavily Search
-- Dynamic tool routing
-- Multi-step reasoning
-- Error handling for tool failures
-- Full message trace for debugging
-
----
-
-### 💡 Why this matters
-
-This implementation demonstrates:
-
-- How LLMs **plan vs execute**
-- How **tool calling actually works internally**
-- How LangChain agents are structured under the hood
-- How to build your own **agent runtime**
-
-👉 This is essentially a **manual ReAct-style agent implementation** :contentReference[oaicite:0]{index=0}
+* Custom tools (`add`, `multiply`)
+* External tools (Wikipedia, Tavily)
+* Dynamic tool routing
+* Multi-step reasoning
+* Error handling
+* Full message trace for debugging
 
 ---
 
 ## ⚙️ Tech Stack
 
-- **Python 3.12**
-- **LangChain**
-- **Azure OpenAI**
-- **Streamlit**
-- **Tavily Search API**
-- **Wikipedia API**
-- **uv** (fast Python package manager)
+* Python 3.12
+* LangChain
+* Azure OpenAI
+* Streamlit
+* Tavily API
+* Wikipedia API
+* uv (package manager)
 
 ---
 
 ## 🛠️ Setup Instructions
 
-### 1. Clone repo
+### 1. Clone the repository
 
-```bash
+```
 git clone https://github.com/BrainTeaser1/Gen-AI.git
 cd Gen-AI
+```
 
-2. Install dependencies (using uv)
+### 2. Install dependencies (using uv)
+
+```
 uv sync
-or
-uv pip install -r requirements.txt
+```
 
-3. Create .env
+or
+
+```
+uv pip install -r requirements.txt
+```
+
+### 3. Create `.env`
+
+```
 AZURE_OPENAI_API_KEY=your_key_here
 AZURE_OPENAI_ENDPOINT=your_endpoint_here
 TAVILY_API_KEY=your_key_here
+```
 
-4. Run Streamlit App
-streamlit run Langchain/QA-ChatBot.py 
+### 4. Run the Streamlit App
 
-(OR)
-(just be inside the Langchain folder as your working direcotry. and then just 
-streamlit run AQ-ChatBot.py)
+```
+streamlit run Langchain/QA-ChatBot.py
+```
 
-Security Note
-.env is ignored via .gitignore
-No secrets are stored in the repository
-API keys must be configured locally
+---
 
-🚧 Current Status
-✅ Manual tool-calling agent implemented
-✅ Multi-tool reasoning loop working
-✅ Streamlit chatbot UI built
-✅ Azure OpenAI integration complete
+## 🔐 Security Note
 
-💬 Author
+* `.env` is ignored via `.gitignore`
+* No secrets are stored in the repository
+* API keys must be configured locally
+
+---
+
+## 🚧 Current Status
+
+* ✅ Manual tool-calling agent implemented
+* ✅ Multi-tool reasoning loop working
+* ✅ Streamlit chatbot UI built
+* ✅ Azure OpenAI integration complete
+
+---
+
+## 🔭 What's Next
+
+* LangGraph-based orchestration
+* Memory (short + long term)
+* RAG integration
+* Observability (logging, token tracking)
+* Tool reliability improvements
+
+---
+
+## 👤 Author
 
 Krishna Shukla
 
 Exploring:
-LLM Systems
-Agent Architectures
-GenAI Infrastructure
 
+* LLM Systems
+* Agent Architectures
+* GenAI Infrastructure
 
+---
+
+## ⭐ Final Note
+
+This repository focuses on **understanding before abstraction**.
+
+Instead of relying on built-in agents, I implemented the core loop manually — making it easier to debug, extend, and reason about system behavior.
